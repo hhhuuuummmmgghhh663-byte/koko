@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=search" />
+  <title>NJM__store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    :root{
+      --neon: #ffffff;
+      border-color: #000;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background-image: url("https://i.ibb.co/dw7nF3hw/IMG-20251205-WA0013.jpg");
+      background-repeat: no-repeat;
+      background-size: 400px 900px;
+      color:#111;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+    }
+    p{
+      font-size: xx-large;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      margin-top:100px;
+      color:white;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 18px;
+      background:rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:120;
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    }
+    .logo{display:flex;align-items:center;gap:10px;}
+    .logo .mark{font-family:"Bebas Neue",sans-serif;font-size:34px;color:#111;letter-spacing:1px;line-height:1}
+    main{padding:96px 16px 60px}
+    .icons{display:flex;gap:14px;align-items:center}
+    .icon{width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,0.06);cursor:pointer;border:1px solid #f0f0f0}
+    /* search UI */
+    .search-wrapper{position:relative;display:flex;align-items:center;gap:8px}
+    #searchInput{display:none;padding:8px 10px;border-radius:8px;border:1px solid #eee;width:170px}
+    .search-input:focus{ outline:none;color:white; }
+    #searchBtn.icon{display:grid;place-items:center}
+    /* products grid */
+    #products{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      align-items:start;
+    }
+    .card{
+      background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);border:1px solid #f2f2f2;
+      display:flex;flex-direction:column;align-items:stretch;transition:transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,0.12)}
+    .card .imgwrap{height:150px;display:block;overflow:hidden;background:#fafafa}
+    .card img{width:100%;height:100%;object-fit:cover;display:block}
+    .card .body{padding:10px 12px 12px;text-align:left;flex:1;display:flex;flex-direction:column;gap:6px}
+    .card h3{font-size:14px;margin-top:2px}
+    .card p{font-size:12px;color:#666;margin-top:2px;flex:1}
+    .card .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+    .price{font-weight:800;color:#111}
+    .badge{background:var(--neon);color:#002000;padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px}
+    .card-controls{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .sizes{display:flex;gap:8px;flex-wrap:wrap}
+    .size-btn{
+      padding:6px 8px;border-radius:8px;border:1px solid #000;background:#fff;cursor:pointer;font-weight:700;font-size:13px;
+    }
+    .size-btn.selected{box-shadow:0 6px 18px rgba(0,0,0,0.06);border:2px solid var(--neon)}
+    .card .add-cart{ background:var(--neon);border:0;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer;margin-top:6px;color:#000; }
+    .panel{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:18px}
+    .panel .sheet{
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border-radius: 12px;
+  padding: 0;
+  background:#fff;
+  overflow-y: auto;
+}
+    .close-sheet{float:right;background:transparent;border:0;font-size:15px;}
+    .details-grid{display:block;grid-template-columns:1fr 1fr;gap:18px;align-items:Center ;border-radius:8px;}
+    .details-grid img{
+  width: 330px;
+  height: 380px;
+  object-fit: cover;
+  border-radius: 0;
+}
+    .details-info h2{font-size:28px;margin-bottom:6px;font-family:"Bebas Neue",sans-serif}
+    .details-info p{color:#444;margin-bottom:8px}
+    select,input[type=number]{padding:10px;border-radius:10px;border:1px solid #eee;width:160px}
+    footer{margin-top:30px;padding:20px 16px;text-align:center;color:#333;font-weight:600;background:linear-gradient(90deg,var(--neon),#f9f3c6);border-radius:12px;margin-bottom:20px}
+    @media (min-width: 900px){ #products{grid-template-columns:repeat(4,1fr)} }
+    @media (max-width: 640px){ #products{grid-template-columns:repeat(3,1fr)} .card .imgwrap{height:120px} }
+    @media (max-width:420px){ #products{grid-template-columns:repeat(2,1fr)} }
+    .color-select {appearance:none;padding:8px 10px;border-radius:8px;border:1px solid #eee;width:100%}
+    .color-btn {background:#ffffff;border:1px solid #000000;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+    .button1{ width: 240px; height: 40px; margin-top: 180px; border-radius:8px; background-color: #000; color: #ffffff; border:none; }
+    .cart-item{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f2f2f2}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" aria-hidden="true"><div class="mark"><h6>NJM.COM</h6></div></div>
+
+    <div class="search-wrapper">
+      <input id="searchInput" placeholder="Search products..." aria-label="Search products">
+      <button id="searchBtn" class="icon" title="Search">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+    </div>
+
+    <button id="openCart" class="icon" title="Cart">🛒</button>
+    <div class="icons"></div>
+  </header>
+
+  <main>
+    <button class="button1" type="button" id="shopNow">Shop Now</button>
+
+    <p>Here we will distinguish you with high quality and in a simple and different shape</p>
+
+    <h2 style="margin:8px 4px 14px;font-size:20px;font-weight:800;color:white">BUY NOW</h2>
+
+    <section id="products" aria-live="polite"></section>
+
+    <div style="height:16px"></div>
+
+    <footer>© 2025 NJM Shop — All rights reserved</footer>
+  </main>
+
+  <div id="panel" class="panel" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true">
+      <button class="close-sheet" id="closePanel">✕</button>
+      <div id="panelContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // Supabase client
+    const supabaseUrl = "https://fsfzfntijvgnxlawosfi.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzZnpmbnRpanZnbnhsYXdvc2ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTU1MTgsImV4cCI6MjA3NjU3MTUxOH0.LAd_pj2W_K-awK4bisKfJyjA1qcVD4y0UhqH_aWZC9U";
+    const { createClient } = supabase;
+    const client = createClient(supabaseUrl, supabaseKey);
+
+    // DOM refs
+    const productsEl = document.getElementById('products');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const panel = document.getElementById('panel');
+    const panelContent = document.getElementById('panelContent');
+    const closePanel = document.getElementById('closePanel');
+    const openCart = document.getElementById('openCart');
+    const shopNow = document.getElementById('shopNow');
+
+    let productsCache = [];
+    let cart = [];
+
+    // utilities
+    function escapeHtml(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+    function truncate(text, len){ if(!text) return ''; return text.length > len ? text.slice(0,len-1) + '…' : text; }
+
+    function parseOptionsFromDescription(descr){
+      const colorSet = new Set();
+      const sizeSet = new Set();
+      if (!descr) return {colors:[],sizes:[]};
+      const parts = descr.split(',').map(s => s.trim()).filter(Boolean);
+      parts.forEach(part => {
+        const p = part.split('/');
+        if (p.length === 2){
+          const color = p[0].trim();
+          const sizePart = p[1].trim();
+          colorSet.add(color);
+          sizePart.split('_').map(s=>s.trim()).forEach(s => { if(s) sizeSet.add(s); });
+        }
+      });
+      if (colorSet.size === 0) ['Black','White'].forEach(c=>colorSet.add(c));
+      if (sizeSet.size === 0) ['S','M','L','XL'].forEach(s=>sizeSet.add(s));
+      return { colors: Array.from(colorSet), sizes: Array.from(sizeSet) };
+    }
+
+    function makeColorSelect(colors){
+      const select = document.createElement('select');
+      select.className = 'color-select';
+      colors.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        select.appendChild(opt);
+      });
+      return select;
+    }
+
+    function showToast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position:'fixed', bottom:'20px', left:'50%', transform:'translateX(-50%)',
+        padding:'10px 14px', borderRadius:'10px', boxShadow:'0 8px 24px rgba(0,0,0,0.12)', background:'#fff', color:'#000', fontWeight:'700', zIndex:1000
+      });
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.transition = 'opacity .35s'; t.style.opacity = '0'; }, 1100);
+      setTimeout(()=>{ t.remove(); }, 1500);
+    }
+
+    // --- load products from supabase ---
+    async function loadProducts(query = "") {
+      try {
+        let q;
+        if (query && query.trim() !== "") {
+          const term = `%${query.trim()}%`;
+          q = client.from('products').select('*').ilike('name', term).order('created_at', {ascending:false});
+        } else {
+          q = client.from('products').select('*').order('created_at', {ascending:false});
+        }
+        const { data, error } = await q;
+        if (error) {
+          console.error("Supabase error:", error);
+          productsEl.innerHTML = `<p style="padding:16px;color:#b00">Error loading products</p>`;
+          return;
+        }
+        productsCache = data || [];
+        renderProducts(productsCache);
+      } catch (err) {
+        console.error(err);
+        productsEl.innerHTML = `<p style="padding:16px;color:#b00">Error loading products</p>`;
+        productDiv.addEventListener('click', () => {
+    window.location.href = `product.html?id=${product.id}`;
+});
+      }
+    }
+
+    // render cards
+    function renderProducts(list){
+      productsEl.innerHTML = "";
+      if (!list || list.length === 0){
+        productsEl.innerHTML = "<p style='padding:8px;color:#666'>No products found.</p>";
+        return;
+      }
+
+      list.forEach(item => {
+        const imgUrl = item.image_url || 'https://via.placeholder.com/600x400?text=No+Image';
+        const {colors, sizes} = parseOptionsFromDescription(item.description || "");
+
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        // build inner HTML (add "Buy now" button on card)
+        card.innerHTML = `
+          <div class="imgwrap"><img src="${imgUrl}" alt="${escapeHtml(item.name)}"></div>
+          <div class="body">
+            <h3>${escapeHtml(item.name)}</h3>
+            <p>${item.description ? escapeHtml(truncate(item.description, 60)) : ''}</p>
+            <div class="foot">
+              <div class="price">${item.price ? item.price + " EGP" : "-"}</div>
+              ${item.stock === 0 ? '<div class="badge">Sold out</div>' : '<div class="badge">Sale</div>'}
+            </div>
+            <div class="card-controls" aria-hidden="false">
+              <button class="color-btn" type="button">Color</button>
+              <div class="color-list" style="display:none;margin-top:6px;"></div>
+              <div class="sizes" role="list" aria-label="Size options"></div>
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <button class="add-cart" type="button">Add to cart</button>
+                <button class="buy-now-card" type="button" style="background:#000;color:#fff;border-radius:8px;padding:8px 10px;border:0;cursor:pointer">Buy now</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // color select
+        const colorList = card.querySelector('.color-list');
+        const colorSelect = makeColorSelect(colors);
+        colorList.appendChild(colorSelect);
+
+        const colorBtn = card.querySelector('.color-btn');
+        colorBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          document.querySelectorAll('.color-list').forEach(el => { if (el !== colorList) el.style.display = 'none'; });
+          colorList.style.display = colorList.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // sizes
+        const sizesWrap = card.querySelector('.sizes');
+        sizes.forEach((s, idx) => {
+          const sb = document.createElement('button');
+          sb.type = 'button';
+          sb.className = 'size-btn' + (idx === 0 ? ' selected' : '');
+          sb.textContent = s;
+          sb.dataset.size = s;
+          sizesWrap.appendChild(sb);
+        });
+
+        sizesWrap.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const btn = ev.target.closest('.size-btn');
+          if (!btn) return;
+          sizesWrap.querySelectorAll('.size-btn').forEach(x => x.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+
+        // add to cart in card
+        const addBtn = card.querySelector('.add-cart');
+        addBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const color = colorSelect.value || (colors[0] || 'Black');
+          const selectedSizeBtn = sizesWrap.querySelector('.size-btn.selected');
+          const size = selectedSizeBtn ? selectedSizeBtn.dataset.size : (sizes[0] || 'M');
+          const qty = 1;
+          cart.push({
+            id: item.id,
+            name: item.name,
+            price: item.price || 0,
+            size,
+            color,
+            qty,
+            image_url: item.image_url
+          });
+          showToast('Added to cart');
+        });
+
+        // Buy now from card -> add single product then open order form
+        const buyNowCardBtn = card.querySelector('.buy-now-card');
+        buyNowCardBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const color = colorSelect.value || (colors[0] || 'Black');
+          const selectedSizeBtn = sizesWrap.querySelector('.size-btn.selected');
+          const size = selectedSizeBtn ? selectedSizeBtn.dataset.size : (sizes[0] || 'M');
+          const qty = 1;
+
+          cart = [{
+            id: item.id,
+            name: item.name,
+            price: item.price || 0,
+            size,
+            color,
+            qty,
+            image_url: item.image_url
+          }];
+
+          renderCart();
+          openPanel();
+        });
+
+        // click card to show details (except when clicking controls)
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.card-controls')) return;
+          showDetails(item);
+        });
+
+        productsEl.appendChild(card);
+      });
+    }
+
+    // close any open color-list when clicking outside
+    document.addEventListener('click', (ev) => {
+      document.querySelectorAll('.color-list').forEach(el => {
+        if (!el.contains(ev.target) && !el.previousElementSibling?.contains(ev.target)) {
+          el.style.display = 'none';
+        }
+      });
+    });
+
+    // open/close panel helpers
+    function openPanel(){
+      panel.style.display = 'flex';
+      panel.setAttribute('aria-hidden','false');
+    }
+    function closePanelFn(){
+      panel.style.display = 'none';
+      panel.setAttribute('aria-hidden','true');
+    }
+
+    closePanel.addEventListener('click', closePanelFn);
+    panel.addEventListener('click', (e) => { if (e.target === panel) closePanelFn(); });
+
+    // show details - clean, single implementation
+    function showDetails(item){
+      const {colors, sizes} = parseOptionsFromDescription(item.description || "");
+
+      panelContent.innerHTML = `
+        <div class="details-grid">
+          <div>
+            <img src="${item.image_url || 'https://via.placeholder.com/800x600?text=No+Image'}" alt="${escapeHtml(item.name)}">
+          </div>
+          <div class="details-info">
+            <h2>${escapeHtml(item.name)}</h2>
+            <p>${escapeHtml(item.description || '')}</p>
+            <div style="margin-top:6px;font-weight:800">${item.price ? item.price + " EGP" : '-'}</div>
+
+            <div style="margin-top:8px;width100px">
+              <div><strong>Color</strong></div>
+              <div id="detailColorWrap"></div>
+            </div>
+
+            <div style="margin-top:8px;margin-left:100px;">
+              <div><strong>Size</strong></div>
+              <div class="sizes" id="detailSizes"></div>
+            </div>
+
+            <div style="margin-top:10px;margin-left:100px;">
+              <div><strong>Quantity</strong></div>
+              <input id="qtyInput" type="number" min="1" value="1" style="width:100px;padding:8px;border-radius:8px;border:1px solid #eee">
+            </div>
+
+            <div style="margin-top:12px">
+              <button id="addToCartBtn" style="background-color:black ;color:white;width:180px;height:35px;border-radius:8px;border:none;cursor:pointer; margin-left:100px;margin-bottom :800px">Add to cart</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button id="buyNowBtn" style="background-color:#000;color:#fff;width:180px;height:35px; border-radius:8px;border:none;cursor:pointer;margin-left:80px;margin-bottom :800px";>Buy now</button>
+        </div>
+      `;
+
+      // populate color select & sizes in details
+      const dsWrap = document.getElementById('detailColorWrap');
+      const detailColorSelect = makeColorSelect(colors);
+      dsWrap.appendChild(detailColorSelect);
+
+      const dsz = document.getElementById('detailSizes');
+      sizes.forEach((s, idx) => {
+        const sb = document.createElement('button');
+        sb.type = 'button';
+        sb.className = 'size-btn' + (idx === 0 ? ' selected' : '');
+        sb.textContent = s;
+        sb.dataset.size = s;
+        dsz.appendChild(sb);
+      });
+      dsz.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.size-btn');
+        if (!btn) return;
+        dsz.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+
+      openPanel();
+
+      // add to cart from details
+      const addLarge = document.getElementById('addToCartBtn');
+      if (addLarge) {
+        addLarge.addEventListener('click', () => {
+          const qty = parseInt(document.getElementById('qtyInput').value || '1', 10);
+          const color = detailColorSelect.value || (colors[0] || 'Black');
+          const selSize = dsz.querySelector('.size-btn.selected');
+          const size = selSize ? selSize.dataset.size : (sizes[0] || 'M');
+          cart.push({
+            id: item.id,
+            name: item.name,
+            price: item.price || 0,
+            size,
+            color,
+            qty,
+            image_url: item.image_url
+          });
+          showToast('Added to cart');
+          closePanelFn();
+        });
+      }
+
+      // buy now from details -> replace cart with this product and open order form
+      const buyNowBtn = document.getElementById('buyNowBtn');
+      if (buyNowBtn) {
+        buyNowBtn.addEventListener('click', () => {
+          const qty = parseInt(document.getElementById('qtyInput').value || '1', 10);
+          const color = detailColorSelect.value || (colors[0] || 'Black');
+          const selSize = dsz.querySelector('.size-btn.selected');
+          const size = selSize ? selSize.dataset.size : (sizes[0] || 'M');
+
+          cart = [{
+            id: item.id,
+            name: item.name,
+            price: item.price || 0,
+            size,
+            color,
+            qty,
+            image_url: item.image_url
+          }];
+
+          renderCart(); // shows checkout form inside panel
+          openPanel();
+        });
+      }
+    }
+
+    // render cart and place-order form
+    function renderCart(){
+      let total = 0;
+      const itemsHtml = cart.map((it, idx) => {
+        const line = (it.price || 0) * (it.qty || 1);
+        total += line;
+        return `
+          <div class="cart-item">
+            <div style="display:flex;gap:8px;align-items:center">
+              <img src="${it.image_url || 'https://via.placeholder.com/80'}" alt="${escapeHtml(it.name)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+              <div>
+                <strong>${escapeHtml(it.name)}</strong><br>
+                ${escapeHtml(it.color)} • ${escapeHtml(it.size)} • x${it.qty}
+              </div>
+            </div>
+            <div style="text-align:right">
+              ${line} EGP<br>
+              <button data-i="${idx}" class="removeItem" style="margin-top:8px;padding:6px 8px;border-radius:8px;border:1px solid #eee;background:#fff;cursor:pointer">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join('') || '<p style="color:#666">Cart is empty.</p>';
+
+      panelContent.innerHTML = `
+        <div class="checkout-sheet">
+          <button class="close-sheet" id="closeSheetInner" style="float:right"></button>
+          <h2>Checkout</h2>
+          <div class="cart-list">${itemsHtml}</div>
+          <div style="margin-top:12px;font-weight:800">Total: ${total} EGP</div>
+
+          <form id="orderForm" style="margin-top:12px;max-width:420px">
+            <input type="email" id="email" placeholder="email" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px">
+            <input id="custFirstName" type="text" placeholder="First name" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px">
+            <input id="custLastName" type="text" placeholder="Last name" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px">
+            <input id="custPhone" type="text" placeholder="Phone" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px">
+            <input id="custAddress" type="text" placeholder="Address" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px">
+            <button type="submit" class="add-cart" style="width:100%;background:var(--neon);border:0;padding:12px;border-radius:10px;font-weight:800;cursor:pointer">Place order</button>
+          </form>
+        </div>
+      `;
+
+      const closeInner = document.getElementById('closeSheetInner');
+      if (closeInner) closeInner.addEventListener('click', () => { closePanelFn(); });
+
+      Array.from(panelContent.querySelectorAll('.removeItem')).forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const i = parseInt(e.currentTarget.dataset.i,10);
+          cart.splice(i,1);
+          renderCart();
+        });
+      });
+
+      const orderForm = panelContent.querySelector('#orderForm');
+      if (orderForm) {
+        orderForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = (document.getElementById('custFirstName').value || '') + ' ' + (document.getElementById('custLastName').value || '');
+          const phone = document.getElementById('custPhone').value.trim();
+          const address = document.getElementById('custAddress').value.trim();
+
+          if (!name.trim() || !phone || !address) { alert('Please fill all fields'); return; }
+          if (cart.length === 0) { alert('Cart is empty'); return; }
+
+          panelContent.innerHTML = `
+            <div>
+              <h2>اختر طريقة الدفع</h2>
+              <div class="payment-choices" style="display:flex;gap:8px;margin-top:12px">
+                <button id="pay_cash" type="button" style="padding:8px 12px;cursor:pointer;background-color:black;color:white;border:none;border-radius :8px;"> الدفع عند الاستلام</button>
+          <br><br>
+                <button id="pay_online" type="button" style="padding:8px 12px;cursor:pointer; background-color:black;color:white;border:none;border-radius :8px"> الدفع الإلكتروني</button>
+          <br><br>
+                <button id="pay_cancel" type="button" class="muted" style="padding:8px 12px;cursor:pointer; background-color:black;color:white;border:none;border-radius :8px">إلغاء والعودة</button>
+              </div>
+            </div>
+          `;
+
+          function setProcessing(state){
+            const btns = panelContent.querySelectorAll('button');
+            btns.forEach(b => b.disabled = state);
+          }
+
+          async function finalizeOrder(paymentMethod){
+            try {
+              setProcessing(true);
+              const payload = {
+                customer_name: name,
+                phone,
+                address,
+                products: cart,
+                payment_method: paymentMethod,
+                created_at: new Date().toISOString()
+              };
+              const { error } = await client.from('orders').insert([payload]);
+              if (error) {
+                console.error(error);
+                alert('Error creating order');
+                setProcessing(false);
+                return;
+              }
+              alert('Order created successfully');
+              cart = [];
+              closePanelFn();
+              loadProducts();
+            } catch (err) {
+              console.error(err);
+              alert('Error creating order');
+              setProcessing(false);
+            }
+          }
+
+          const btnCash = document.getElementById('pay_cash');
+          const btnOnline = document.getElementById('pay_online');
+          const btnCancel = document.getElementById('pay_cancel');
+
+          if (btnCash) btnCash.addEventListener('click', () => finalizeOrder('cash_on_delivery'));
+          if (btnOnline) btnOnline.addEventListener('click', () => finalizeOrder('electronic_payment'));
+          if (btnCancel) btnCancel.addEventListener('click', () => renderCart());
+        });
+      }
+    }
+
+    // header UI
+    if (searchBtn && searchInput) {
+      searchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchInput.style.display = searchInput.style.display === 'none' || searchInput.style.display === '' ? 'block' : 'none';
+        if (searchInput.style.display === 'block') searchInput.focus();
+      });
+      searchBtn.addEventListener('click', () => loadProducts(searchInput.value));
+      searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadProducts(searchInput.value); });
+      let debounceTimer = null;
+      searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(()=> loadProducts(searchInput.value), 400); });
+    }
+
+    // open cart button
+    if (openCart) {
+      openCart.addEventListener('click', () => {
+        renderCart();
+        openPanel();
+      });
+    }
+
+    // shop now scroll
+    if (shopNow) {
+      shopNow.addEventListener('click', () => {
+        document.getElementById('products').scrollIntoView({behavior:'smooth'});
+      });
+    }
+
+    // initial load
+    loadProducts();
+  </script>
+</body>
+</html>
