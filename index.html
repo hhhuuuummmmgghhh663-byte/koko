@@ -104,6 +104,18 @@
   object-fit: cover;
   border-radius: 0;
 }
+  .old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.new-price {
+  color: #111;
+  font-weight: 800;
+  font-size: 16px;
+}
     .details-info h2{font-size:28px;margin-bottom:6px;font-family:"Bebas Neue",sans-serif}
     .details-info p{color:#444;margin-bottom:8px}
     select,input[type=number]{padding:10px;border-radius:10px;border:1px solid #eee;width:160px}
@@ -268,8 +280,10 @@
           <div class="body">
             <h3>${escapeHtml(item.name)}</h3>
             <p>${item.description ? escapeHtml(truncate(item.description, 60)) : ''}</p>
+        <div class="price-box">
+        <span class="old-price">800 EGP</span>
+  <span class="new-price">${item.price ? item.price + " EGP" : "-"}</span>
             <div class="foot">
-              <div class="price">${item.price ? item.price + " EGP" : "-"}</div>
               ${item.stock === 0 ? '<div class="badge">Sold out</div>' : '<div class="badge">Sale</div>'}
             </div>
             <div class="card-controls" aria-hidden="false">
@@ -655,4 +669,4 @@
     loadProducts();
   </script>
 </body>
-                                           </html>
+      </html>
